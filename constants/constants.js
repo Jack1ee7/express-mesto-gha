@@ -1,4 +1,5 @@
 const ERRORS = {
+  PAGE_NOT_FOUND: { message: 'Запрашиваемый ресурс не найден', id: 404 },
   CARD_NOT_FOUND: { message: 'Карточка с указанным _id не найдена.', id: 404 },
   USER_NOT_FOUND: { message: 'Пользователь с указанным _id не найден.', id: 404 },
   INVALID_DATA: { message: 'Переданы некорректные данные.', id: 400 },
