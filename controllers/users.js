@@ -27,7 +27,7 @@ module.exports.createUser = (req, res) => {
 module.exports.getUser = (req, res) => {
   User.findById(req.params.id)
     .then((user) => {
-      if (!user) return res.status(INVALID_DATA.id).send({ message: INVALID_DATA.message });
+      if (!user) return res.status(USER_NOT_FOUND.id).send({ message: USER_NOT_FOUND.message });
       return res.send({ data: user });
     })
     .catch((err) => {
@@ -49,7 +49,7 @@ module.exports.updateProfile = (req, res) => {
 
 module.exports.updateAvatar = (req, res) => {
   const { avatar } = req.body;
-  User.findByIdAndUpdate(req.user._id, { avatar })
+  User.findByIdAndUpdate(req.user._id, { avatar }, { new: true })
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') return res.status(INVALID_DATA_AVATAR_UPDATE.id).send({ message: INVALID_DATA_AVATAR_UPDATE.message });
