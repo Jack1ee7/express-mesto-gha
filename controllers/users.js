@@ -4,8 +4,8 @@ const {
   INVALID_DATA_USER_CREATE,
   INVALID_DATA_USER_UPDATE,
   INVALID_DATA_AVATAR_UPDATE,
-  INVALID_DATA,
   DEFAULT_ERROR,
+  INVALID_DATA,
 } = require('../constants/constants');
 
 module.exports.getUsers = (req, res) => {
@@ -30,18 +30,17 @@ module.exports.createUser = (req, res) => {
 
 module.exports.getUser = (req, res) => {
   User.findById(req.params.id)
+    .orFail(new Error('NotValidId'))
     .then((user) => {
-      if (!user) {
-        res.status(USER_NOT_FOUND.code).send({ message: USER_NOT_FOUND.message });
-      } else {
-        res.send({ data: user });
-      }
+      res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
         res.status(INVALID_DATA.code).send({ message: INVALID_DATA.message });
+      } else if (err.message === 'NotValidId') {
+        res.status(USER_NOT_FOUND.code).send({ message: USER_NOT_FOUND.message });
       } else {
-        res.status(DEFAULT_ERROR.code).send({ message: err.message });
+        res.status(DEFAULT_ERROR.code).send({ message: DEFAULT_ERROR.message });
       }
     });
 };

@@ -25,16 +25,15 @@ module.exports.createCard = (req, res) => {
 
 module.exports.deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
+    .orFail(new Error('NotValidId'))
     .then((card) => {
-      if (!card) {
-        res.status(CARD_NOT_FOUND.code).send({ message: CARD_NOT_FOUND.message });
-      } else {
-        res.send({ data: card });
-      }
+      res.send({ data: card });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
         res.status(INVALID_DATA.code).send({ message: INVALID_DATA.message });
+      } else if (err.message === 'NotValidId') {
+        res.status(CARD_NOT_FOUND.code).send({ message: CARD_NOT_FOUND.message });
       } else {
         res.status(DEFAULT_ERROR.code).send({ message: DEFAULT_ERROR });
       }
@@ -43,17 +42,15 @@ module.exports.deleteCard = (req, res) => {
 
 module.exports.likeCard = (req, res) => {
   Card.findByIdAndUpdate(req.params.cardId, { $addToSet: { likes: req.user._id } }, { new: true })
-    .orFail(new Error('CastError'))
+    .orFail(new Error('NotValidId'))
     .then((card) => {
-      if (!card) {
-        res.status(CARD_NOT_FOUND.code).send({ message: CARD_NOT_FOUND.message });
-      } else {
-        res.send({ data: card });
-      }
+      res.send({ data: card });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
         res.status(INVALID_DATA_LIKE.code).send({ message: INVALID_DATA_LIKE.message });
+      } else if (err.message === 'NotValidId') {
+        res.status(CARD_NOT_FOUND.code).send({ message: CARD_NOT_FOUND.message });
       } else {
         res.status(DEFAULT_ERROR.code).send({ message: DEFAULT_ERROR });
       }
@@ -61,17 +58,15 @@ module.exports.likeCard = (req, res) => {
 };
 module.exports.dislikeCard = (req, res) => {
   Card.findByIdAndUpdate(req.params.cardId, { $pull: { likes: req.user._id } }, { new: true })
-    .orFail(new Error('CastError'))
+    .orFail(new Error('NotValidId'))
     .then((card) => {
-      if (!card) {
-        res.status(CARD_NOT_FOUND.code).send({ message: CARD_NOT_FOUND.message });
-      } else {
-        res.send({ data: card });
-      }
+      res.send({ data: card });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
         res.status(INVALID_DATA_LIKE.code).send({ message: INVALID_DATA_LIKE.message });
+      } else if (err.message === 'NotValidId') {
+        res.status(CARD_NOT_FOUND.code).send({ message: CARD_NOT_FOUND.message });
       } else {
         res.status(DEFAULT_ERROR.code).send({ message: DEFAULT_ERROR });
       }
