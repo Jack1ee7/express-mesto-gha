@@ -4,14 +4,14 @@ const {
   INVALID_DATA_USER_CREATE,
   INVALID_DATA_USER_UPDATE,
   INVALID_DATA_AVATAR_UPDATE,
-  INVALID_DATA,
   DEFAULT_ERROR,
+  INVALID_DATA,
 } = require('../constants/constants');
 
 module.exports.getUsers = (req, res) => {
   User.find({})
     .then((user) => res.send({ data: user }))
-    .catch(() => res.status(DEFAULT_ERROR.id).send({ message: DEFAULT_ERROR }));
+    .catch(() => res.status(DEFAULT_ERROR.code).send({ message: DEFAULT_ERROR }));
 };
 
 module.exports.createUser = (req, res) => {
@@ -19,21 +19,29 @@ module.exports.createUser = (req, res) => {
   User.create({ name, about, avatar })
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err.name === 'ValidationError') return res.status(INVALID_DATA_USER_CREATE.id).send({ message: INVALID_DATA_USER_CREATE.message });
-      return res.status(DEFAULT_ERROR.id).send({ message: DEFAULT_ERROR });
+      if (err.name === 'ValidationError') {
+        res.status(INVALID_DATA_USER_CREATE.code)
+          .send({ message: INVALID_DATA_USER_CREATE.message });
+      } else {
+        res.status(DEFAULT_ERROR.code).send({ message: DEFAULT_ERROR });
+      }
     });
 };
 
 module.exports.getUser = (req, res) => {
   User.findById(req.params.id)
+    .orFail(new Error('NotValidId'))
     .then((user) => {
-      if (!user) return res.status(USER_NOT_FOUND.id).send({ message: USER_NOT_FOUND.message });
-      return res.send({ data: user });
+      res.send({ data: user });
     })
     .catch((err) => {
-      if (err.name === 'NotFoundError') return res.status(USER_NOT_FOUND.id).send({ message: USER_NOT_FOUND.message });
-      if (err.name === 'CastError') return res.status(INVALID_DATA.id).send({ message: INVALID_DATA.message });
-      return res.status(DEFAULT_ERROR.id).send({ message: err.message });
+      if (err.name === 'CastError') {
+        res.status(INVALID_DATA.code).send({ message: INVALID_DATA.message });
+      } else if (err.message === 'NotValidId') {
+        res.status(USER_NOT_FOUND.code).send({ message: USER_NOT_FOUND.message });
+      } else {
+        res.status(DEFAULT_ERROR.code).send({ message: DEFAULT_ERROR.message });
+      }
     });
 };
 
@@ -42,8 +50,12 @@ module.exports.updateProfile = (req, res) => {
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err.name === 'ValidationError') return res.status(INVALID_DATA_USER_UPDATE.id).send({ message: INVALID_DATA_USER_UPDATE.message });
-      return res.status(DEFAULT_ERROR.id).send({ message: DEFAULT_ERROR });
+      if (err.name === 'ValidationError') {
+        res.status(INVALID_DATA_USER_UPDATE.code)
+          .send({ message: INVALID_DATA_USER_UPDATE.message });
+      } else {
+        res.status(DEFAULT_ERROR.code).send({ message: DEFAULT_ERROR });
+      }
     });
 };
 
@@ -52,7 +64,11 @@ module.exports.updateAvatar = (req, res) => {
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true })
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err.name === 'ValidationError') return res.status(INVALID_DATA_AVATAR_UPDATE.id).send({ message: INVALID_DATA_AVATAR_UPDATE.message });
-      return res.status(DEFAULT_ERROR.id).send({ message: DEFAULT_ERROR });
+      if (err.name === 'ValidationError') {
+        res.status(INVALID_DATA_AVATAR_UPDATE.code)
+          .send({ message: INVALID_DATA_AVATAR_UPDATE.message });
+      } else {
+        res.status(DEFAULT_ERROR.code).send({ message: DEFAULT_ERROR });
+      }
     });
 };

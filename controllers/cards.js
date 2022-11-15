@@ -6,7 +6,7 @@ const {
 module.exports.getCards = (req, res) => {
   Card.find({})
     .then((cards) => res.send({ data: cards }))
-    .catch(() => res.status(DEFAULT_ERROR.id).send({ message: DEFAULT_ERROR }));
+    .catch(() => res.status(DEFAULT_ERROR.code).send({ message: DEFAULT_ERROR }));
 };
 
 module.exports.createCard = (req, res) => {
@@ -14,45 +14,61 @@ module.exports.createCard = (req, res) => {
   Card.create({ name, link, owner: req.user._id })
     .then((card) => res.send({ data: card }))
     .catch((err) => {
-      if (err.name === 'ValidationError') return res.status(INVALID_DATA_CARD_CREATE.id).send({ message: INVALID_DATA_CARD_CREATE.message });
-      return res.status(DEFAULT_ERROR.id).send({ message: DEFAULT_ERROR });
+      if (err.name === 'ValidationError') {
+        res.status(INVALID_DATA_CARD_CREATE.code)
+          .send({ message: INVALID_DATA_CARD_CREATE.message });
+      } else {
+        res.status(DEFAULT_ERROR.code).send({ message: DEFAULT_ERROR });
+      }
     });
 };
 
 module.exports.deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
+    .orFail(new Error('NotValidId'))
     .then((card) => {
-      if (!card) return res.status(CARD_NOT_FOUND.id).send({ message: CARD_NOT_FOUND.message });
-      return res.send({ data: card });
+      res.send({ data: card });
     })
     .catch((err) => {
-      if (err.name === 'CastError') return res.status(INVALID_DATA.id).send({ message: INVALID_DATA.message });
-      if (err.name === 'NotFoundError') return res.status(CARD_NOT_FOUND.id).send({ message: CARD_NOT_FOUND.message });
-      return res.status(DEFAULT_ERROR.id).send({ message: DEFAULT_ERROR });
+      if (err.name === 'CastError') {
+        res.status(INVALID_DATA.code).send({ message: INVALID_DATA.message });
+      } else if (err.message === 'NotValidId') {
+        res.status(CARD_NOT_FOUND.code).send({ message: CARD_NOT_FOUND.message });
+      } else {
+        res.status(DEFAULT_ERROR.code).send({ message: DEFAULT_ERROR });
+      }
     });
 };
 
 module.exports.likeCard = (req, res) => {
   Card.findByIdAndUpdate(req.params.cardId, { $addToSet: { likes: req.user._id } }, { new: true })
+    .orFail(new Error('NotValidId'))
     .then((card) => {
-      if (!card) return res.status(CARD_NOT_FOUND.id).send({ message: CARD_NOT_FOUND.message });
-      return res.send({ data: card });
+      res.send({ data: card });
     })
     .catch((err) => {
-      if (err.name === 'CastError') return res.status(INVALID_DATA.id).send({ message: INVALID_DATA.message });
-      if (err.name === 'ValidationError') return res.status(INVALID_DATA_LIKE.id).send({ message: INVALID_DATA_LIKE.message });
-      return res.status(DEFAULT_ERROR.id).send({ message: DEFAULT_ERROR });
+      if (err.name === 'CastError') {
+        res.status(INVALID_DATA_LIKE.code).send({ message: INVALID_DATA_LIKE.message });
+      } else if (err.message === 'NotValidId') {
+        res.status(CARD_NOT_FOUND.code).send({ message: CARD_NOT_FOUND.message });
+      } else {
+        res.status(DEFAULT_ERROR.code).send({ message: DEFAULT_ERROR });
+      }
     });
 };
 module.exports.dislikeCard = (req, res) => {
   Card.findByIdAndUpdate(req.params.cardId, { $pull: { likes: req.user._id } }, { new: true })
+    .orFail(new Error('NotValidId'))
     .then((card) => {
-      if (!card) return res.status(CARD_NOT_FOUND.id).send({ message: CARD_NOT_FOUND.message });
-      return res.send({ data: card });
+      res.send({ data: card });
     })
     .catch((err) => {
-      if (err.name === 'CastError') return res.status(INVALID_DATA.id).send({ message: INVALID_DATA.message });
-      if (err.name === 'ValidationError') return res.status(INVALID_DATA_LIKE.id).send({ message: INVALID_DATA_LIKE.message });
-      return res.status(DEFAULT_ERROR.id).send({ message: DEFAULT_ERROR });
+      if (err.name === 'CastError') {
+        res.status(INVALID_DATA_LIKE.code).send({ message: INVALID_DATA_LIKE.message });
+      } else if (err.message === 'NotValidId') {
+        res.status(CARD_NOT_FOUND.code).send({ message: CARD_NOT_FOUND.message });
+      } else {
+        res.status(DEFAULT_ERROR.code).send({ message: DEFAULT_ERROR });
+      }
     });
 };

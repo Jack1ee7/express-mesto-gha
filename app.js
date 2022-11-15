@@ -21,6 +21,6 @@ app.use((req, res, next) => {
 app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 
-app.use((req, res) => res.status(PAGE_NOT_FOUND.id).send({ message: PAGE_NOT_FOUND.message }));
+app.use((req, res) => res.status(PAGE_NOT_FOUND.code).send({ message: PAGE_NOT_FOUND.message }));
 
 app.listen(3000);

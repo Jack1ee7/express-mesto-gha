@@ -1,6 +1,6 @@
 {
   "name": "express-mesto-gha",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Проект Mesto фронтенд + бэкенд",
   "main": "./app.js",
   "scripts": {
@@ -13,7 +13,7 @@
     "url": "git+https://github.com/Jack1ee7/express-mesto-gha.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "Nikita Chukanov",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/Jack1ee7/express-mesto-gha/issues"
