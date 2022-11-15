@@ -20,26 +20,29 @@ module.exports.createUser = (req, res) => {
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(INVALID_DATA_USER_CREATE.code)
+        res.status(INVALID_DATA_USER_CREATE.code)
           .send({ message: INVALID_DATA_USER_CREATE.message });
+      } else {
+        res.status(DEFAULT_ERROR.code).send({ message: DEFAULT_ERROR });
       }
-      return res.status(DEFAULT_ERROR.code).send({ message: DEFAULT_ERROR });
     });
 };
 
 module.exports.getUser = (req, res) => {
-  User.findById(req.params.code)
+  User.findById(req.params.id)
     .then((user) => {
       if (!user) {
-        return res.status(USER_NOT_FOUND.code).send({ message: USER_NOT_FOUND.message });
+        res.status(USER_NOT_FOUND.code).send({ message: USER_NOT_FOUND.message });
+      } else {
+        res.send({ data: user });
       }
-      return res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(INVALID_DATA.code).send({ message: INVALID_DATA.message });
+        res.status(INVALID_DATA.code).send({ message: INVALID_DATA.message });
+      } else {
+        res.status(DEFAULT_ERROR.code).send({ message: err.message });
       }
-      return res.status(DEFAULT_ERROR.code).send({ message: err.message });
     });
 };
 
@@ -49,10 +52,11 @@ module.exports.updateProfile = (req, res) => {
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(INVALID_DATA_USER_UPDATE.code)
+        res.status(INVALID_DATA_USER_UPDATE.code)
           .send({ message: INVALID_DATA_USER_UPDATE.message });
+      } else {
+        res.status(DEFAULT_ERROR.code).send({ message: DEFAULT_ERROR });
       }
-      return res.status(DEFAULT_ERROR.code).send({ message: DEFAULT_ERROR });
     });
 };
 
@@ -62,9 +66,10 @@ module.exports.updateAvatar = (req, res) => {
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(INVALID_DATA_AVATAR_UPDATE.code)
+        res.status(INVALID_DATA_AVATAR_UPDATE.code)
           .send({ message: INVALID_DATA_AVATAR_UPDATE.message });
+      } else {
+        res.status(DEFAULT_ERROR.code).send({ message: DEFAULT_ERROR });
       }
-      return res.status(DEFAULT_ERROR.code).send({ message: DEFAULT_ERROR });
     });
 };
