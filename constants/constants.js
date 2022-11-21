@@ -9,6 +9,8 @@ const ERRORS = {
   INVALID_DATA_CARD_CREATE: { message: 'Переданы некорректные данные при создании карточки.', code: 400 },
   INVALID_DATA_LIKE: { message: 'Переданы некорректные данные для постановки/снятии лайка.', code: 400 },
   DEFAULT_ERROR: { message: 'Ошибка сервера.', code: 500 },
+  UNAUTHORIZED: { message: 'Переданные данные неверны.', code: 401 },
+  AUTH_ERROR: { message: 'Необходима авторизация.', code: 401 },
 };
 
 module.exports = ERRORS;
