@@ -4,22 +4,16 @@ const jwt = require('jsonwebtoken');
 const { NODE_ENV, JWT_SECRET } = process.env;
 const User = require('../models/user');
 
-const {
-  INVALID_DATA_USER_UPDATE,
-  INVALID_DATA_AVATAR_UPDATE,
-  DEFAULT_ERROR,
-  INVALID_DATA,
-  UNAUTHORIZED,
-} = require('../constants/constants');
+const { INVALID_DATA } = require('../constants/constants');
 
 const NotFoundError = require('../errors/NotFoundError');
 const ValidationError = require('../errors/ValidationError');
 const AlreadyRegistredError = require('../errors/AlreadyRegistredError');
 
-module.exports.getUsers = (req, res) => {
+module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((user) => res.send({ data: user }))
-    .catch(() => res.status(DEFAULT_ERROR.code).send({ message: DEFAULT_ERROR }));
+    .catch((err) => next(err));
 };
 
 module.exports.createUser = (req, res, next) => {
@@ -59,7 +53,7 @@ module.exports.getUser = (req, res, next) => {
       if (err.name === 'CastError') {
         res.status(INVALID_DATA.code).send({ message: INVALID_DATA.message });
       }
-      return next(err);
+      next(err);
     });
 };
 
@@ -73,40 +67,30 @@ module.exports.getCurrentUser = (req, res, next) => {
       if (err.name === 'CastError') {
         res.status(INVALID_DATA.code).send({ message: INVALID_DATA.message });
       }
-      return next(err);
+      next(err);
     });
 };
 
-module.exports.updateProfile = (req, res) => {
+module.exports.updateProfile = (req, res, next) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
     .orFail(new ValidationError('Переданы некорректные данные при обновлении профиля.'))
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(INVALID_DATA_USER_UPDATE.code)
-          .send({ message: INVALID_DATA_USER_UPDATE.message });
-      } else {
-        res.status(DEFAULT_ERROR.code).send({ message: DEFAULT_ERROR });
-      }
+      next(err);
     });
 };
 
-module.exports.updateAvatar = (req, res) => {
+module.exports.updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true })
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(INVALID_DATA_AVATAR_UPDATE.code)
-          .send({ message: INVALID_DATA_AVATAR_UPDATE.message });
-      } else {
-        res.status(DEFAULT_ERROR.code).send({ message: DEFAULT_ERROR });
-      }
+      next(err);
     });
 };
 
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
   return User.findUserByCredentials(email, password)
@@ -124,8 +108,6 @@ module.exports.login = (req, res) => {
       res.status(201).send({ message: 'Авторизация успешна', token });
     })
     .catch((err) => {
-      if (err.message === 'Unauthorized') {
-        res.status(UNAUTHORIZED.code).send({ message: UNAUTHORIZED.message });
-      }
+      next(err);
     });
 };

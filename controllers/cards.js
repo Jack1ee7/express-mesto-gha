@@ -36,9 +36,9 @@ module.exports.deleteCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(INVALID_DATA.code).send({ message: INVALID_DATA.message });
+        res.status(INVALID_DATA.code).send({ message: INVALID_DATA.message });
       }
-      return next(err);
+      next(err);
     });
 };
 
@@ -50,9 +50,9 @@ module.exports.likeCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(INVALID_DATA_LIKE.code).send({ message: INVALID_DATA_LIKE.message });
+        res.status(INVALID_DATA_LIKE.code).send({ message: INVALID_DATA_LIKE.message });
       }
-      return next(err);
+      next(err);
     });
 };
 module.exports.dislikeCard = (req, res, next) => {
@@ -63,8 +63,8 @@ module.exports.dislikeCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(INVALID_DATA_LIKE.code).send({ message: INVALID_DATA_LIKE.message });
+        res.status(INVALID_DATA_LIKE.code).send({ message: INVALID_DATA_LIKE.message });
       }
-      return next(err);
+      next(err);
     });
 };
