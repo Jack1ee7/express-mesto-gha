@@ -4,7 +4,6 @@ const {
 } = require('../constants/constants');
 const ForbiddenAccess = require('../errors/ForbiddenAccessError');
 const NotFoundError = require('../errors/NotFoundError');
-const ValidationError = require('../errors/ValidationError');
 
 module.exports.getCards = (req, res) => {
   Card.find({})
@@ -15,9 +14,10 @@ module.exports.getCards = (req, res) => {
 module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
   Card.create({ name, link, owner: req.user._id })
-    .orFail(new ValidationError('Переданы некорректные данные при создании карточки'))
     .then((card) => res.send({ data: card }))
-    .catch((err) => next(err));
+    .catch((err) => {
+      next(err);
+    });
 };
 
 module.exports.deleteCard = (req, res, next) => {
