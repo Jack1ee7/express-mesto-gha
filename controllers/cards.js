@@ -2,7 +2,7 @@ const Card = require('../models/card');
 const {
   INVALID_DATA_LIKE, DEFAULT_ERROR, INVALID_DATA,
 } = require('../constants/constants');
-const ForbiddenAccess = require('../errors/ForbiddenAccess');
+const ForbiddenAccess = require('../errors/ForbiddenAccessError');
 const NotFoundError = require('../errors/NotFoundError');
 const ValidationError = require('../errors/ValidationError');
 

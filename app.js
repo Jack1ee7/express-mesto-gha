@@ -43,7 +43,10 @@ app.post(
       password: Joi.string().required().min(8),
       name: Joi.string().min(2).max(30),
       about: Joi.string().min(2).max(30),
-      avatar: Joi.string().uri(),
+      avatar: Joi.string().regex(
+        // eslint-disable-next-line no-useless-escape
+        /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9-._~:\/?#[\]@!$&'()*+,;=]*)$/,
+      ),
     }),
   }),
   createUser,

@@ -5,7 +5,6 @@ const { NODE_ENV, JWT_SECRET } = process.env;
 const User = require('../models/user');
 
 const {
-  INVALID_DATA_USER_CREATE,
   INVALID_DATA_USER_UPDATE,
   INVALID_DATA_AVATAR_UPDATE,
   DEFAULT_ERROR,
@@ -15,6 +14,7 @@ const {
 
 const NotFoundError = require('../errors/NotFoundError');
 const ValidationError = require('../errors/ValidationError');
+const AlreadyRegistredError = require('../errors/AlreadyRegistredError');
 
 module.exports.getUsers = (req, res) => {
   User.find({})
@@ -22,7 +22,7 @@ module.exports.getUsers = (req, res) => {
     .catch(() => res.status(DEFAULT_ERROR.code).send({ message: DEFAULT_ERROR }));
 };
 
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
   const {
     email,
     password,
@@ -41,11 +41,10 @@ module.exports.createUser = (req, res) => {
     .then((user) => User.findOne({ _id: user._id }))
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(INVALID_DATA_USER_CREATE.code)
-          .send({ message: INVALID_DATA_USER_CREATE.message });
+      if (err.code === 11000) {
+        next(new AlreadyRegistredError('Пользователь уже зарегистрирован'));
       } else {
-        res.status(DEFAULT_ERROR.code).send({ message: DEFAULT_ERROR });
+        next(err);
       }
     });
 };
