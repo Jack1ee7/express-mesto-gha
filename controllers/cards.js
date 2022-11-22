@@ -24,12 +24,12 @@ module.exports.deleteCard = (req, res, next) => {
   const { cardId } = req.params;
   const userId = req.user._id;
   Card.findById(cardId)
+    .orFail(new NotFoundError('Карточка не найдена'))
     .then((card) => {
       if (card.owner._id.toString() !== userId) {
         throw new ForbiddenAccess('Нельзя удалить чужую карточку');
       }
       Card.findByIdAndRemove(req.params.cardId)
-        .orFail(new NotFoundError('Карточка не найдена'))
         .then((cardDeleted) => {
           res.send({ data: cardDeleted });
         });
