@@ -1,14 +1,13 @@
 const Card = require('../models/card');
-const {
-  INVALID_DATA_LIKE, DEFAULT_ERROR, INVALID_DATA,
-} = require('../constants/constants');
-const ForbiddenAccess = require('../errors/ForbiddenAccessError');
+const ForbiddenAccessError = require('../errors/ForbiddenAccessError');
 const NotFoundError = require('../errors/NotFoundError');
 
-module.exports.getCards = (req, res) => {
+module.exports.getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => res.send({ data: cards }))
-    .catch(() => res.status(DEFAULT_ERROR.code).send({ message: DEFAULT_ERROR }));
+    .catch((err) => {
+      next(err);
+    });
 };
 
 module.exports.createCard = (req, res, next) => {
@@ -27,7 +26,7 @@ module.exports.deleteCard = (req, res, next) => {
     .orFail(new NotFoundError('Карточка не найдена'))
     .then((card) => {
       if (card.owner._id.toString() !== userId) {
-        throw new ForbiddenAccess('Нельзя удалить чужую карточку');
+        throw new ForbiddenAccessError('Нельзя удалить чужую карточку');
       }
       Card.findByIdAndRemove(req.params.cardId)
         .then((cardDeleted) => {
@@ -35,9 +34,6 @@ module.exports.deleteCard = (req, res, next) => {
         });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(INVALID_DATA.code).send({ message: INVALID_DATA.message });
-      }
       next(err);
     });
 };
@@ -49,9 +45,6 @@ module.exports.likeCard = (req, res, next) => {
       res.send({ data: card });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(INVALID_DATA_LIKE.code).send({ message: INVALID_DATA_LIKE.message });
-      }
       next(err);
     });
 };
@@ -62,9 +55,6 @@ module.exports.dislikeCard = (req, res, next) => {
       res.send({ data: card });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(INVALID_DATA_LIKE.code).send({ message: INVALID_DATA_LIKE.message });
-      }
       next(err);
     });
 };

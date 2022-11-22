@@ -4,8 +4,6 @@ const jwt = require('jsonwebtoken');
 const { NODE_ENV, JWT_SECRET } = process.env;
 const User = require('../models/user');
 
-const { INVALID_DATA } = require('../constants/constants');
-
 const NotFoundError = require('../errors/NotFoundError');
 const ValidationError = require('../errors/ValidationError');
 const AlreadyRegistredError = require('../errors/AlreadyRegistredError');
@@ -50,9 +48,6 @@ module.exports.getUser = (req, res, next) => {
       res.send({ data: user });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(INVALID_DATA.code).send({ message: INVALID_DATA.message });
-      }
       next(err);
     });
 };
@@ -64,9 +59,6 @@ module.exports.getCurrentUser = (req, res, next) => {
       res.send({ data: user });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(INVALID_DATA.code).send({ message: INVALID_DATA.message });
-      }
       next(err);
     });
 };
