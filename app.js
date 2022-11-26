@@ -1,28 +1,19 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 require('dotenv').config();
 const { errors, celebrate, Joi } = require('celebrate');
 const auth = require('./middlewares/auth');
-const { PAGE_NOT_FOUND } = require('./constants/constants');
+const { REGEX } = require('./utils/constants');
 const { createUser, login } = require('./controllers/users');
 
 const app = express();
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
 
-// app.use((req, res, next) => {
-//   req.user = {
-//     _id: '6371a44c6efd538a60dc3dca',
-// вставьте сюда _id созданного в предыдущем пункте пользователя
-//   };
-
-//   next();
-// });
 app.use(cookieParser());
 app.post(
   '/signin',
@@ -43,10 +34,7 @@ app.post(
       password: Joi.string().required().min(8),
       name: Joi.string().min(2).max(30),
       about: Joi.string().min(2).max(30),
-      avatar: Joi.string().regex(
-        // eslint-disable-next-line no-useless-escape
-        /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9-._~:\/?#[\]@!$&'()*+,;=]*)$/,
-      ),
+      avatar: Joi.string().regex(REGEX),
     }),
   }),
   createUser,
@@ -54,10 +42,7 @@ app.post(
 
 app.use(auth);
 
-app.use('/users', require('./routes/users'));
-app.use('/cards', require('./routes/cards'));
-
-app.use((req, res) => res.status(PAGE_NOT_FOUND.code).send({ message: PAGE_NOT_FOUND.message }));
+app.use(require('./routes/index'));
 
 app.use(errors());
 
