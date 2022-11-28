@@ -9,14 +9,8 @@ const NotFoundError = require('../utils/errors/NotFoundError');
 const ValidationError = require('../utils/errors/ValidationError');
 const AlreadyRegistredError = require('../utils/errors/AlreadyRegistredError');
 
-module.exports.getUsers = (req, res, next) => {
-  User.find({})
-    .then((user) => res.send({ user }))
-    .catch(next);
-};
-
-module.exports.getUser = (req, res, next) => {
-  User.findById(req.params.id)
+const findUserById = (res, next, id) => {
+  User.findById(id)
     .orFail(new NotFoundError('Пользователь с указанным _id не найден.'))
     .then((user) => {
       res.send({ user });
@@ -28,6 +22,16 @@ module.exports.getUser = (req, res, next) => {
         next(err);
       }
     });
+};
+
+module.exports.getUsers = (req, res, next) => {
+  User.find({})
+    .then((user) => res.send({ user }))
+    .catch(next);
+};
+
+module.exports.getUser = (req, res, next) => {
+  findUserById(res, next, req.params.id);
 };
 
 module.exports.createUser = (req, res, next) => {
@@ -46,8 +50,13 @@ module.exports.createUser = (req, res, next) => {
       about,
       avatar,
     }))
-    .then((user) => User.findOne({ _id: user._id }, { password: 0 }))
-    .then((user) => res.send({ user }))
+    .then((user) => res.send({
+      _id: user._id,
+      email: user.email,
+      name: user.name,
+      about: user.about,
+      avatar: user.avatar,
+    }))
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
         next(new ValidationError('Переданы некорректные данные при создании пользователя'));
@@ -80,12 +89,7 @@ module.exports.login = (req, res, next) => {
 };
 
 module.exports.getCurrentUser = (req, res, next) => {
-  User.findById(req.user._id)
-    .orFail(new NotFoundError('Пользователь с указанным _id не найден.'))
-    .then((user) => {
-      res.send({ user });
-    })
-    .catch(next);
+  findUserById(res, next, req.user._id);
 };
 
 module.exports.updateProfile = (req, res, next) => {
