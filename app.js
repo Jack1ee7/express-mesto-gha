@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 require('dotenv').config();
 const { errors, celebrate, Joi } = require('celebrate');
-const auth = require('./middlewares/auth');
 const { REGEX } = require('./utils/constants');
 const { createUser, login } = require('./controllers/users');
 
@@ -39,8 +38,6 @@ app.post(
   }),
   createUser,
 );
-
-app.use(auth);
 
 app.use(require('./routes/index'));
 

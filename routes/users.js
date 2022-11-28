@@ -5,7 +5,7 @@ const {
 const { updateAvatarRule, updateProfileRule, getUserRule } = require('../utils/validationRules');
 
 router.get('/', getUsers);
-router.get('/me', getCurrentUser);
+router.get('/me', getUserRule, getCurrentUser);
 router.get('/:id', getUserRule, getUser);
 router.patch('/me', updateProfileRule, updateProfile);
 router.patch('/me/avatar', updateAvatarRule, updateAvatar);
