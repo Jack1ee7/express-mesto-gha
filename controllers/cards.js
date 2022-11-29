@@ -33,10 +33,8 @@ module.exports.deleteCard = (req, res, next) => {
       if (card.owner.toString() !== userId) {
         throw new ForbiddenAccessError('Нельзя удалить чужую карточку');
       }
-      Card.findByIdAndRemove(req.params.cardId)
-        .then((cardDeleted) => {
-          res.send({ cardDeleted });
-        });
+      res.send({ card });
+      card.remove();
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -47,8 +45,8 @@ module.exports.deleteCard = (req, res, next) => {
     });
 };
 
-module.exports.likeCard = (req, res, next) => {
-  Card.findByIdAndUpdate(req.params.cardId, { $addToSet: { likes: req.user._id } }, { new: true })
+const toggleLike = (action, req, res, next) => {
+  Card.findByIdAndUpdate(req.params.cardId, action, { new: true })
     .populate(['owner', 'likes'])
     .orFail(new NotFoundError('Карточка с указанным _id не найдена.'))
     .then((card) => {
@@ -62,18 +60,10 @@ module.exports.likeCard = (req, res, next) => {
       }
     });
 };
+
+module.exports.likeCard = (req, res, next) => {
+  toggleLike({ $addToSet: { likes: req.user._id } }, req, res, next);
+};
 module.exports.dislikeCard = (req, res, next) => {
-  Card.findByIdAndUpdate(req.params.cardId, { $pull: { likes: req.user._id } }, { new: true })
-    .populate(['owner', 'likes'])
-    .orFail(new NotFoundError('Карточка с указанным _id не найдена.'))
-    .then((card) => {
-      res.send({ card });
-    })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new ValidationError('Переданы некорректный id карточки'));
-      } else {
-        next(err);
-      }
-    });
+  toggleLike({ $pull: { likes: req.user._id } }, req, res, next);
 };
