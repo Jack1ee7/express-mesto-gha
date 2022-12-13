@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 require('dotenv').config();
 const { errors } = require('celebrate');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const app = express();
 
@@ -13,7 +14,11 @@ mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
 
 app.use(cookieParser());
 
+app.use(requestLogger);
+
 app.use(require('./routes/index'));
+
+app.use(errorLogger);
 
 app.use(errors());
 
