@@ -13,7 +13,7 @@ const findUserById = (res, next, id) => {
   User.findById(id)
     .orFail(new NotFoundError('Пользователь с указанным _id не найден.'))
     .then((user) => {
-      res.send({ user });
+      res.send(user);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -26,7 +26,7 @@ const findUserById = (res, next, id) => {
 
 module.exports.getUsers = (req, res, next) => {
   User.find({})
-    .then((user) => res.send({ user }))
+    .then((user) => res.send(user))
     .catch(next);
 };
 
@@ -94,7 +94,7 @@ module.exports.updateProfile = (req, res, next) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
     .orFail(new NotFoundError('Пользователь с указанным _id не найден.'))
-    .then((user) => res.send({ user }))
+    .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'CastError') {
         return next(new ValidationError('Переданы некорректные данные при обновлении профиля'));
@@ -110,7 +110,7 @@ module.exports.updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
     .orFail(new NotFoundError('Пользователь с указанным _id не найден.'))
-    .then((user) => res.send({ user }))
+    .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'CastError') {
         return next(new ValidationError('Переданы некорректные данные при обновлении аватара'));
